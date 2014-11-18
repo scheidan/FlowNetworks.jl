@@ -62,6 +62,8 @@ function Location(x::Float64, segment_index::Int, g)
     Location(x, segment[1])
 end
 
+## nicer Type name
+typealias FlowNetwork AbstractGraph{Source, ExEdge{Source}}
 
 
 ## ---------------------------------
@@ -76,7 +78,7 @@ function init_flow_net(sink_lable = "outflow")
 end
 
 
-function add_segment!(g, sink::Sink, label::String, length::Float64)
+function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64)
 
     ## add new source
     index = num_vertices(g) + 1
@@ -98,7 +100,7 @@ function add_segment!(g, sink::Sink, label::String, length::Float64)
 end
 
 
-function add_segment!(g, sink_label::String,  label::String, length::Float64,)
+function add_segment!(g::FlowNetwork, sink_label::String,  label::String, length::Float64,)
     sink = filter(x -> x.label == sink_label, vertices(g))
     size(sink,1)>1 ? error("Label '$sink_label' is not unique!") : nothing
     size(sink,1)==0 ? error("Label '$sink_label' is not defined!") : nothing
@@ -111,7 +113,7 @@ end
 ## ---------------------------------
 ## compute distances
 
-function is_flowconneted(g, v1::Source, v2::Source)
+function is_flowconneted(g::FlowNetwork, v1::Source, v2::Source)
     if v1.depth < v2.depth
         l = v1; h = v2
     else
@@ -125,7 +127,7 @@ function is_flowconneted(g, v1::Source, v2::Source)
 end
 
 
-function dist(g, v1::Source, v2::Source)
+function dist(g::FlowNetwork, v1::Source, v2::Source)
     ## compute distance if v1, and v2 are flow connetced, else return 0.0
     d = 0.0
     if is_flowconneted(g, v1::Source, v2::Source)
@@ -135,7 +137,7 @@ function dist(g, v1::Source, v2::Source)
 end
 
 
-function dist(g, l1::Location, l2::Location)
+function dist(g::FlowNetwork, l1::Location, l2::Location)
     ## compute distance if v1, and v2 are flow connetced, else return 0.0
     s1 = source(l1.segment)
     s2 = source(l2.segment)
@@ -154,7 +156,7 @@ end
 ## ---------------------------------
 ## Misc
 
-function netspaceN(g, n::Int)
+function netspaceN(g::FlowNetwork, n::Int)
     ## create 'n' locations on  every segement of 'g'
     edg = edges(g)
 
@@ -168,7 +170,7 @@ function netspaceN(g, n::Int)
     locs
 end
 
-function netspaceDist(g, every::Real)
+function netspaceDist(g::FlowNetwork, every::Real)
     ## create a locations with a distance of 'every', at least one per segment
     edg = edges(g)
 
@@ -185,9 +187,9 @@ end
 
 
 
-## --- Produce a *very simple* plot network
 
-function plot(v::FlowNetworks.Source, g, pre::String)
+## --- produces a *very simple* plot network
+function plot(v::Source, g::FlowNetwork, pre::String)
 
     ## construct string to print
     str_mid = "\u251C\u2500"
@@ -205,7 +207,7 @@ function plot(v::FlowNetworks.Source, g, pre::String)
 
 end
 
-function plot(g)
+function plot(g::FlowNetwork)
     println("")
     plot(vertices(g)[1], g, "  ")
     println("")
