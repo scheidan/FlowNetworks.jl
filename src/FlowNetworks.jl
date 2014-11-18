@@ -11,7 +11,9 @@ using Graphs
 
 
 export Location
-export init_flow_net, add_segment!, is_flowconneted, dist, netspace
+export init_flow_net, add_segment!, is_flowconneted, dist, netspaceN, netspaceDist, plot
+
+
 
 ## ---------------------------------
 ## define types
@@ -59,6 +61,7 @@ function Location(x::Float64, segment_index::Int, g)
 
     Location(x, segment[1])
 end
+
 
 
 ## ---------------------------------
@@ -151,7 +154,7 @@ end
 ## ---------------------------------
 ## Misc
 
-function netspace(g, n::Int)
+function netspaceN(g, n::Int)
     ## create 'n' locations on  every segement of 'g'
     edg = edges(g)
 
@@ -163,6 +166,49 @@ function netspace(g, n::Int)
         end
     end
     locs
+end
+
+function netspaceDist(g, every::Real)
+    ## create a locations with a distance of 'every', at least one per segment
+    edg = edges(g)
+
+    locs = Location[]
+    for e in edg
+        l = e.attributes["length"]
+        n = max(1, ifloor(l/every))
+        for x in linspace(l/(2*n), l-l/(2*n), n)
+            push!(locs, Location(x, e))
+        end
+    end
+    locs
+end
+
+
+
+## --- Produce a *very simple* plot network
+
+function plot(v::FlowNetworks.Source, g, pre::String)
+
+    ## construct string to print
+    str_mid = "\u251C\u2500"
+    str = string(pre, str_mid, " ", v.label)
+    l_label = length(v.label)
+
+    vn = in_neighbors(v, g)
+    length(vn) > 0 ? println(str, " <\u2510") : println(str)
+
+    if length(vn) > 0
+        for vni in vn
+            plot(vni, g, string(pre, "\u2502    ", " "^l_label))
+        end
+    end
+
+end
+
+function plot(g)
+    println("")
+    plot(vertices(g)[1], g, "  ")
+    println("")
 end
 
 ## -----------

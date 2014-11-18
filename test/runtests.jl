@@ -14,6 +14,7 @@ add_segment!(g, "A", "C", 20.0)
 add_segment!(g, "C", "D", 2.0)
 add_segment!(g, "C", "E", 5.0)
 
+plot(g)
 
 ## --- define Locations
 
@@ -44,3 +45,8 @@ v = Graphs.vertices(g)
 @test dist(g, lo2, lo3a) == 0.0
 @test dist(g, lo1, lo3a) == dist(g, lo1, lo3b)
 @test dist(g, lo1, lo2) == dist(g, lo2, lo1)
+
+## --- misc
+
+@test length(netspaceN(g, 10)) == 50
+@test length(netspaceDist(g, 10)) == 20 + 5 + 2 + 1 + 1
