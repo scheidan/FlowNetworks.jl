@@ -126,6 +126,11 @@ function is_flowconneted(g::FlowNetwork, v1::Source, v2::Source)
     h == l
 end
 
+function is_flowconneted(g::FlowNetwork, l1::Location, l2::Location)
+    is_flowconneted(g, source(l1.segment), source(l2.segment))
+end
+
+
 
 function dist(g::FlowNetwork, v1::Source, v2::Source)
     ## compute distance if v1, and v2 are flow connetced, else return 0.0

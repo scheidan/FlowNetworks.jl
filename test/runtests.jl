@@ -36,8 +36,15 @@ v = Graphs.vertices(g)
 
 @test is_flowconneted(g, v[1], v[6]) == true
 @test is_flowconneted(g, v[6], v[1]) == true
+@test is_flowconneted(g, v[6], v[6]) == true
 @test is_flowconneted(g, v[3], v[4]) == false
 @test is_flowconneted(g, v[4], v[3]) == false
+
+@test is_flowconneted(g, lo1, lo1) == true
+@test is_flowconneted(g, lo1, lo2) == true
+@test is_flowconneted(g, lo2, lo1) == true
+@test is_flowconneted(g, lo2, lo3a) == false
+@test is_flowconneted(g, lo3a, lo2) == false
 
 @test_approx_eq dist(g, lo1, lo1) 0.0
 @test_approx_eq dist(g, lo1, lo2) 189.2
