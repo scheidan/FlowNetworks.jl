@@ -22,6 +22,7 @@ lo2 = Location(22.2, Graphs.edges(g)[2])
 lo3a = Location(3.3, "A", "C", g)
 lo3b = Location(3.3, 3, g)
 lo4 = Location(9.9, "A", "C", g)
+lo5 = Location(1.1, "C", "E", g)
 
 ## illegal Locations
 @test_throws ErrorException Location(3333.0, Graphs.edges(g)[1])
@@ -53,6 +54,11 @@ v = Graphs.vertices(g)
 @test_approx_eq dist(g, lo3a, lo4) 6.6
 @test_approx_eq dist(g, lo1, lo3a) dist(g, lo1, lo3b)
 @test_approx_eq dist(g, lo1, lo2) dist(g, lo2, lo1)
+
+
+@test flowpath(g, lo1, lo5) == flowpath(g, lo5, lo1)
+@test length(flowpath(g, lo1, lo5)) == 2
+@test length(flowpath(g, lo3a, lo4)) == 0
 
 
 ## --- misc

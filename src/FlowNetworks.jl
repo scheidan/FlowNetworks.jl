@@ -11,7 +11,8 @@ using Graphs
 
 
 export Location
-export init_flow_net, add_segment!, is_flowconneted, dist, netspaceN, netspaceDist, plot
+export init_flow_net, add_segment!, is_flowconneted, dist, flowpath
+export netspaceN, netspaceDist, plot
 
 
 
@@ -31,7 +32,7 @@ typealias Sink Source
 
 
 type Location
-    x::Float64                          # distance from *down*stream source
+    x::Float64                          # distance from sink (i.e. the *down*stream source)
     segment::ExEdge                     # segment
 
     function Location(x, segment)
@@ -87,7 +88,7 @@ function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64
                         sink.depth + 1,
                         sink.length2root + length)
 
-    add_vertex!(g, new_source )
+    add_vertex!(g, new_source)
 
     ## add segments
     new_connetion = ExEdge(num_edges(g) + 1, new_source , sink)
@@ -119,6 +120,7 @@ function is_flowconneted(g::FlowNetwork, v1::Source, v2::Source)
     else
         h = v1; l = v2
     end
+
     ## travel down until the same depth is reached
     while(h.depth > l.depth)
         h = collect(out_neighbors(h, g))[1]
@@ -136,7 +138,7 @@ function dist(g::FlowNetwork, v1::Source, v2::Source)
     ## compute distance if v1, and v2 are flow connetced, else return 0.0
     d = 0.0
     if is_flowconneted(g, v1::Source, v2::Source)
-       d += abs(v1.length2root - v2.length2root)
+        d += abs(v1.length2root - v2.length2root)
     end
     return(d)
 end
@@ -155,6 +157,32 @@ function dist(g::FlowNetwork, l1::Location, l2::Location)
     end
 
     return(d)
+end
+
+function flowpath(g::FlowNetwork, l1::Location, l2::Location)
+    ## Returns an array of segments between l1 and l2 that are *flow connected*.
+    ## The segment of the higher Location is included, the one of the lower *not*.
+    ## If both locations are on the same segment, an empty array is returned.
+    ## !!! Ff l1 and l2 are *not* flow connected, the result is not meaningful !!!
+
+    v1 = l1.segment
+    v2 = l2.segment
+
+    flowp = ExEdge[]
+    v1 != v2 ? nothing : return(flowp)
+
+    if source(v1).depth < source(v2).depth
+        l = v1; h = v2
+    else
+        h = v1; l = v2
+    end
+
+    while source(h).depth > source(l).depth
+        push!(flowp, h)
+
+        h = collect(out_edges(target(h), g))[1]
+    end
+    return(flowp)
 end
 
 
@@ -193,7 +221,7 @@ end
 
 
 
-## --- produces a *very simple* plot network
+## --- produces a *very simple* plot of the network
 function plot(v::Source, g::FlowNetwork, pre::String)
 
     ## construct string to print
