@@ -79,7 +79,8 @@ function init_flow_net(sink_lable = "outflow")
 end
 
 
-function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64)
+## Attribute to the segments are added as tuples (String, Any)
+function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64, attr...)
 
     ## add new source
     index = num_vertices(g) + 1
@@ -92,7 +93,13 @@ function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64
 
     ## add segments
     new_connetion = ExEdge(num_edges(g) + 1, new_source , sink)
+
     new_connetion.attributes["length"] = length
+    ## add additional attributes
+    for a in attr
+        new_connetion.attributes[a[1]] = a[2]
+    end
+
     add_edge!(g, new_connetion)
 
     println("added segement between:")
@@ -101,11 +108,11 @@ function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64
 end
 
 
-function add_segment!(g::FlowNetwork, sink_label::String,  label::String, length::Float64,)
+function add_segment!(g::FlowNetwork, sink_label::String,  label::String, length::Float64, attr...)
     sink = filter(x -> x.label == sink_label, vertices(g))
     size(sink,1)>1 ? error("Label '$sink_label' is not unique!") : nothing
     size(sink,1)==0 ? error("Label '$sink_label' is not defined!") : nothing
-    add_segment!(g, sink[1], label, length)
+    add_segment!(g, sink[1], label, length, attr...)
 end
 
 
@@ -140,7 +147,7 @@ function dist(g::FlowNetwork, v1::Source, v2::Source)
     if is_flowconneted(g, v1::Source, v2::Source)
         d += abs(v1.length2root - v2.length2root)
     end
-    return(d)
+    return d
 end
 
 
@@ -156,7 +163,7 @@ function dist(g::FlowNetwork, l1::Location, l2::Location)
         d += abs( (s1.length2root - length1 + l1.x) - (s2.length2root - length2 + l2.x) )
     end
 
-    return(d)
+    return d
 end
 
 function flowpath(g::FlowNetwork, l1::Location, l2::Location)
@@ -169,7 +176,7 @@ function flowpath(g::FlowNetwork, l1::Location, l2::Location)
     v2 = l2.segment
 
     flowp = ExEdge[]
-    v1 != v2 ? nothing : return(flowp)
+    v1 == v2 && return(flowp)
 
     if source(v1).depth < source(v2).depth
         l = v1; h = v2
@@ -182,7 +189,7 @@ function flowpath(g::FlowNetwork, l1::Location, l2::Location)
 
         h = collect(out_edges(target(h), g))[1]
     end
-    return(flowp)
+    return flowp
 end
 
 

@@ -7,8 +7,8 @@ import Graphs
 
 g = init_flow_net("Outflow")
 
-add_segment!(g, Graphs.vertices(g)[1], "A",  200.0)
-add_segment!(g, "A", "B", 50.0)
+add_segment!(g, Graphs.vertices(g)[1], "A",  200.0, ("flow", 1.23))
+add_segment!(g, "A", "B", 50.0, ("flow", 0.23), ("speed", 300))
 add_segment!(g, "A", "C", 20.0)
 add_segment!(g, "C", "D", 2.0)
 add_segment!(g, "C", "E", 5.0)
