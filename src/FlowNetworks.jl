@@ -10,7 +10,7 @@ module FlowNetworks
 using Graphs
 
 
-export Location
+export Location, FlowNetworks
 export init_flow_net, add_segment!, is_flowconneted, dist, flowpath
 export netspaceN, netspaceDist, plot
 
