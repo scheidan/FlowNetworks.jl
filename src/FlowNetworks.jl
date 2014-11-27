@@ -25,13 +25,15 @@ type Source
 
     depth::Int                          # number of segments to 'outflow'
     length2root::Float64                # distance from the 'outflow'
+    x::Float64                          # geographical coordiantes
+    y::Float64                          #       "           "
 end
 
 typealias Sink Source
 
 
 
-type Location
+immutable Location
     x::Float64                          # distance from sink (i.e. the *down*stream source)
     segment::ExEdge                     # segment
 
@@ -70,9 +72,9 @@ typealias FlowNetwork AbstractGraph{Source, ExEdge{Source}}
 ## ---------------------------------
 ## functions to create a network
 
-function init_flow_net(sink_lable = "outflow")
+function init_flow_net(sink_lable, coor::Array{Float64})
     ## out flow
-    sink = [Sink(1, sink_lable, 0, 0.0)]
+    sink = [Sink(1, sink_lable, 0, 0.0, coor[1], coor[2])]
     ## no segments
     segments = ExEdge{Source}[]
     G = graph(sink, segments)
@@ -80,14 +82,20 @@ end
 
 
 ## Attribute to the segments are added as tuples (String, Any)
-function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64, attr...)
+function add_segment!(g::FlowNetwork, sink::Sink, label::String,
+                      coor::Array{Float64}, attr...)
+
+    ## compute length (assuming a straight line)
+    length = sqrt((coor[1]-sink.x)^2 + (coor[2]-sink.y)^2)
 
     ## add new source
     index = num_vertices(g) + 1
     new_source = Source(index,
                         label,
                         sink.depth + 1,
-                        sink.length2root + length)
+                        sink.length2root + length,
+                        coor[1],
+                        coor[2])
 
     add_vertex!(g, new_source)
 
@@ -108,11 +116,11 @@ function add_segment!(g::FlowNetwork, sink::Sink, label::String, length::Float64
 end
 
 
-function add_segment!(g::FlowNetwork, sink_label::String,  label::String, length::Float64, attr...)
+function add_segment!(g::FlowNetwork, sink_label::String,  label::String, coor::Array{Float64}, attr...)
     sink = filter(x -> x.label == sink_label, vertices(g))
     size(sink,1)>1 ? error("Label '$sink_label' is not unique!") : nothing
     size(sink,1)==0 ? error("Label '$sink_label' is not defined!") : nothing
-    add_segment!(g, sink[1], label, length, attr...)
+    add_segment!(g, sink[1], label, coor, attr...)
 end
 
 

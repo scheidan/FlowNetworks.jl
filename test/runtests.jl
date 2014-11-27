@@ -5,13 +5,13 @@ import Graphs
 
 ## --- create FlowNetwork
 
-g = init_flow_net("Outflow")
+g = init_flow_net("Outflow", [0.0, 0.0])
 
-add_segment!(g, Graphs.vertices(g)[1], "A",  200.0, ("flow", 1.23))
-add_segment!(g, "A", "B", 50.0, ("flow", 0.23), ("speed", 300))
-add_segment!(g, "A", "C", 20.0)
-add_segment!(g, "C", "D", 2.0)
-add_segment!(g, "C", "E", 5.0)
+add_segment!(g, Graphs.vertices(g)[1], "A",  [200.0, 0.0], ("flow", 1.23))
+add_segment!(g, "A", "B", [250, 0.0], ("flow", 0.23), ("speed", 300))
+add_segment!(g, "A", "C", [220.0, 0.0])
+add_segment!(g, "C", "D", [222.0, 0.0])
+add_segment!(g, "C", "E", [225.0, 0,0])
 
 plot(g)
 
