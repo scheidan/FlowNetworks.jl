@@ -35,17 +35,19 @@ typealias Sink Source
 
 immutable Location
     x::Float64                          # distance from sink (i.e. the *down*stream source)
+    time::Float64
     segment::ExEdge                     # segment
 
-    function Location(x, segment)
+    function Location(x, time, segment)
         segment.attributes["length"] < x ? error("x can't be larger than the segment length") : nothing
         x < 0 ? error("x can't be negative") : nothing
-        new(x, segment)
+        new(x, time, segment)
     end
 end
 
+
 ## defines a Locating with labels from sink and source
-function Location(x::Float64, sink_label::String, source_label::String, g)
+function Location(x::Float64, time::Float64, sink_label::String, source_label::String, g)
 
     f(e) = (target(e).label == sink_label) & (source(e).label == source_label)
     segment = filter(f, edges(g))
@@ -53,16 +55,16 @@ function Location(x::Float64, sink_label::String, source_label::String, g)
     size(segment,1)>1 ? error("Labels are not unique!") : nothing
     size(segment,1)==0 ? error("No matching segment found!") : nothing
 
-    Location(x, segment[1])
+    Location(x, time, segment[1])
 end
 
 ## defines a Locating with index of segment
-function Location(x::Float64, segment_index::Int, g)
+function Location(x::Float64, time::Float64, segment_index::Int, g)
 
     segment = filter(e -> e.index == segment_index, edges(g))
     size(segment,1)==0 ? error("No matching segment found!") : nothing
 
-    Location(x, segment[1])
+    Location(x, time, segment[1])
 end
 
 ## nicer Type name
@@ -204,22 +206,26 @@ end
 ## ---------------------------------
 ## Misc
 
-function netspaceN(g::FlowNetwork, n::Int)
-    ## create 'n' locations on  every segement of 'g'
+function netspaceN(g::FlowNetwork, n::Int, times::Array{Float64}=[0.0])
+    ## create 'n' locations on every segement of 'g' at all point of 'times'
     edg = edges(g)
 
     locs = Location[]
     for e in edg
         l = e.attributes["length"]
         for x in linspace(l/(2*n), l-l/(2*n), n)
-            push!(locs, Location(x, e))
+            for t in times
+                push!(locs, Location(x, t, e))
+            end
         end
     end
     locs
 end
 
-function netspaceDist(g::FlowNetwork, every::Real)
+
+function netspaceDist(g::FlowNetwork, every::Real, times::Array{Float64}=[0.0])
     ## create a locations with a distance of 'every', at least one per segment
+    ## at all point of 'times'
     edg = edges(g)
 
     locs = Location[]
@@ -227,7 +233,9 @@ function netspaceDist(g::FlowNetwork, every::Real)
         l = e.attributes["length"]
         n = max(1, ifloor(l/every))
         for x in linspace(l/(2*n), l-l/(2*n), n)
-            push!(locs, Location(x, e))
+            for t in times
+                push!(locs, Location(x, t, e))
+            end
         end
     end
     locs

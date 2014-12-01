@@ -17,18 +17,18 @@ plot(g)
 
 ## --- define Locations
 
-lo1 = Location(33.0, "Outflow", "A", g)
-lo2 = Location(22.2, Graphs.edges(g)[2])
-lo3a = Location(3.3, "A", "C", g)
-lo3b = Location(3.3, 3, g)
-lo4 = Location(9.9, "A", "C", g)
-lo5 = Location(1.1, "C", "E", g)
+lo1 = Location(33.0, 0.0, "Outflow", "A", g)
+lo2 = Location(22.2, 0.0, Graphs.edges(g)[2])
+lo3a = Location(3.3, 0.0, "A", "C", g)
+lo3b = Location(3.3, 0.0, 3, g)
+lo4 = Location(9.9,  0.0, "A", "C", g)
+lo5 = Location(1.1,  0.0, "C", "E", g)
 
 ## illegal Locations
-@test_throws ErrorException Location(3333.0, Graphs.edges(g)[1])
-@test_throws ErrorException Location(-1.0, Graphs.edges(g)[1])
-@test_throws ErrorException Location(3333.0, "Outflow", "A", g)
-@test_throws ErrorException Location(-1.0, "Outflow", "A", g)
+@test_throws ErrorException Location(3333.0, 0.0, Graphs.edges(g)[1])
+@test_throws ErrorException Location(-1.0, 0.0, Graphs.edges(g)[1])
+@test_throws ErrorException Location(3333.0, 0.0, "Outflow", "A", g)
+@test_throws ErrorException Location(-1.0, 0.0, "Outflow", "A", g)
 
 
 ## --- compute distances
@@ -65,3 +65,6 @@ v = Graphs.vertices(g)
 
 @test length(netspaceN(g, 10)) == 50
 @test length(netspaceDist(g, 10)) == 20 + 5 + 2 + 1 + 1
+
+@test length(netspaceN(g, 10, [1.3, 3.4])) == 50*2
+@test length(netspaceDist(g, 10, [1.3, 3.4])) == (20 + 5 + 2 + 1 + 1)*2
