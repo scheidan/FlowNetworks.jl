@@ -26,9 +26,7 @@ lo5 = Location(1.1,  0.0, "C", "E", g)
 
 ## illegal Locations
 @test_throws ErrorException Location(3333.0, 0.0, Graphs.edges(g)[1])
-@test_throws ErrorException Location(-1.0, 0.0, Graphs.edges(g)[1])
 @test_throws ErrorException Location(3333.0, 0.0, "Outflow", "A", g)
-@test_throws ErrorException Location(-1.0, 0.0, "Outflow", "A", g)
 
 
 ## --- compute distances

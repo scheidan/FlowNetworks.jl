@@ -39,8 +39,7 @@ immutable Location
     segment::ExEdge                     # segment
 
     function Location(x, time, segment)
-        segment.attributes["length"] < x ? error("x can't be larger than the segment length") : nothing
-        x < 0 ? error("x can't be negative") : nothing
+        segment.attributes["length"] < x ? error("x can't be larger than the segment length!") : nothing
         new(x, time, segment)
     end
 end
