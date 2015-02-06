@@ -67,8 +67,9 @@ function Location(x::Float64, time::Float64, segment_index::Int, g)
     Location(x, time, segment[1])
 end
 
-## nicer Type name
+## nicer Type names
 typealias FlowNetwork AbstractGraph{Source, ExEdge{Source}}
+typealias Segment ExEdge
 
 
 ## ---------------------------------
@@ -78,7 +79,7 @@ function init_flow_net(sink_lable, coor::Array{Float64})
     ## out flow
     sink = [Sink(1, sink_lable, 0, 0.0, coor[1], coor[2])]
     ## no segments
-    segments = ExEdge{Source}[]
+    segments = Segment{Source}[]
     G = graph(sink, segments)
 end
 
@@ -102,7 +103,7 @@ function add_segment!(g::FlowNetwork, sink::Sink, label::String,
     add_vertex!(g, new_source)
 
     ## add segments
-    new_connetion = ExEdge(num_edges(g) + 1, new_source , sink)
+    new_connetion = Segment(num_edges(g) + 1, new_source , sink)
 
     new_connetion.attributes["length"] = length
     ## add additional attributes
@@ -178,13 +179,13 @@ end
 
 
 
-function flowpath(g::FlowNetwork, seg1::ExEdge, seg2::ExEdge)
+function flowpath(g::FlowNetwork, seg1::Segment, seg2::Segment)
     ## Returns an array of segments between 'seg1' and 'seg'2 that are *flow connected*.
     ## The higher segment is included, the lower *not*.
     ## If both locations are on the same segment, an empty array is returned.
     ## !!! If l1 and l2 are *not* flow connected, the result is not meaningful !!!
 
-    flowp = ExEdge[]
+    flowp = Segment[]
     seg1 == seg2 && return(flowp)
 
     if source(seg1).depth < source(seg2).depth
@@ -209,9 +210,9 @@ end
 flowpath(g::FlowNetwork, l1::Location, l2::Location) = flowpath(g, l1.segment, l2.segment)
 
 
-function upstream_segments(g::FlowNetwork, seg::ExEdge)
+function upstream_segments(g::FlowNetwork, seg::Segment)
     ## Returns an array of all segments upstream of 'seg' including 'seg'.
-    up_segments = ExEdge[seg]
+    up_segments = Segment[seg]
     for s in in_edges(source(seg), g)
             append!(up_segments, upstream_segments(g, s))
     end
