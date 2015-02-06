@@ -64,6 +64,12 @@ v = Graphs.vertices(g)
 @test length(upstream_segments(g, Graphs.edges(g)[1])) == 5
 @test length(upstream_segments(g, lo3a)) == 3
 
+@test length(upstream_ends(g, Graphs.edges(g)[1])) == 3
+@test length(upstream_ends(g, lo3a)) == 2
+
+@test length(upstream_paths(g, lo1)) == 3
+@test length(upstream_paths(g, lo3a)) == 2
+
 
 ## --- misc
 

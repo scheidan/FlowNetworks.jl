@@ -12,7 +12,7 @@ using Graphs
 
 export Location, FlowNetwork
 export init_flow_net, add_segment!, is_flowconneted, dist
-export flowpath, upstream_segments
+export flowpath, upstream_segments, upstream_ends, upstream_paths
 export netspaceN, netspaceDist, plot
 
 
@@ -213,7 +213,7 @@ function upstream_segments(g::FlowNetwork, seg::ExEdge)
     ## Returns an array of all segments upstream of 'seg' including 'seg'.
     up_segments = ExEdge[seg]
     for s in in_edges(source(seg), g)
-            append!(up_segments, upstream_segments(g::FlowNetwork, s))
+            append!(up_segments, upstream_segments(g, s))
     end
     up_segments
 end
@@ -221,6 +221,39 @@ end
 
 ## Returns an array of all segments upstream of 'loc'.
 upstream_segments(g::FlowNetwork, loc::Location) = upstream_segments(g, loc.segment)
+
+
+
+function upstream_ends(g::FlowNetwork, seg::ExEdge)
+    ## get all ends upstream of 'seg'
+    sources = Source[]
+    for s in in_edges(source(seg), g)
+        so_s = source(s)
+        if in_degree(so_s, g) != 0
+            append!(sources, upstream_ends(g, s))
+        else
+            push!(sources, so_s)
+        end
+    end
+    sources
+end
+
+upstream_ends(g::FlowNetwork, loc::Location) = upstream_ends(g, loc.segment)
+
+
+function upstream_paths(g::FlowNetwork, seg::ExEdge)
+    ## Returns an array of arrays of all flowpaths to the source of 'seg'
+    paths = Vector{ExEdge}[]
+
+    up_ends = upstream_ends(g, seg)
+    for e in up_ends
+        push!(paths, flowpath(g, seg, out_edges(e, g)[1]))
+    end
+    paths
+end
+
+## Returns an array of arrays of all flowpathes to the source of the segment of 'loc'
+upstream_paths(g::FlowNetwork, loc::Location) = upstream_paths(g, loc.segment)
 
 
 
