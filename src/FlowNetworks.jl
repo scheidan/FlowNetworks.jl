@@ -176,22 +176,21 @@ function dist(g::FlowNetwork, l1::Location, l2::Location)
     return d
 end
 
-function flowpath(g::FlowNetwork, l1::Location, l2::Location)
-    ## Returns an array of segments between l1 and l2 that are *flow connected*.
-    ## The segment of the higher Location is included, the one of the lower *not*.
+
+
+function flowpath(g::FlowNetwork, seg1::ExEdge, seg2::ExEdge)
+    ## Returns an array of segments between 'seg1' and 'seg'2 that are *flow connected*.
+    ## The higher segment is included, the lower *not*.
     ## If both locations are on the same segment, an empty array is returned.
     ## !!! If l1 and l2 are *not* flow connected, the result is not meaningful !!!
 
-    v1 = l1.segment
-    v2 = l2.segment
-
     flowp = ExEdge[]
-    v1 == v2 && return(flowp)
+    seg1 == seg2 && return(flowp)
 
-    if source(v1).depth < source(v2).depth
-        l = v1; h = v2
+    if source(seg1).depth < source(seg2).depth
+        l = seg1; h = seg2
     else
-        h = v1; l = v2
+        h = seg1; l = seg2
     end
 
     while source(h).depth > source(l).depth
@@ -202,6 +201,12 @@ function flowpath(g::FlowNetwork, l1::Location, l2::Location)
     return flowp
 end
 
+
+## Returns an array of segments between 'loc1' and 'loc2' that are *flow connected*.
+## The segment of the higher location is included, the one of the lower *not*.
+## If both locations are on the same segment, an empty array is returned.
+## !!! If l1 and l2 are *not* flow connected, the result is not meaningful !!!
+flowpath(g::FlowNetwork, l1::Location, l2::Location) = flowpath(g, l1.segment, l2.segment)
 
 
 function upstream_segments(g::FlowNetwork, seg::ExEdge)
