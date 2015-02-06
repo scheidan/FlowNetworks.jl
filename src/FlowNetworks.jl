@@ -11,7 +11,8 @@ using Graphs
 
 
 export Location, FlowNetwork
-export init_flow_net, add_segment!, is_flowconneted, dist, flowpath
+export init_flow_net, add_segment!, is_flowconneted, dist
+export flowpath, upstream_segments
 export netspaceN, netspaceDist, plot
 
 
@@ -179,7 +180,7 @@ function flowpath(g::FlowNetwork, l1::Location, l2::Location)
     ## Returns an array of segments between l1 and l2 that are *flow connected*.
     ## The segment of the higher Location is included, the one of the lower *not*.
     ## If both locations are on the same segment, an empty array is returned.
-    ## !!! Ff l1 and l2 are *not* flow connected, the result is not meaningful !!!
+    ## !!! If l1 and l2 are *not* flow connected, the result is not meaningful !!!
 
     v1 = l1.segment
     v2 = l2.segment
@@ -200,6 +201,22 @@ function flowpath(g::FlowNetwork, l1::Location, l2::Location)
     end
     return flowp
 end
+
+
+
+function upstream_segments(g::FlowNetwork, seg::ExEdge)
+    ## Returns an array of all segments upstream of 'seg' including 'seg'.
+    up_segments = ExEdge[seg]
+    for s in in_edges(source(seg), g)
+            append!(up_segments, upstream_segments(g::FlowNetwork, s))
+    end
+    up_segments
+end
+
+
+## Returns an array of all segments upstream of 'loc'.
+upstream_segments(g::FlowNetwork, loc::Location) = upstream_segments(g, loc.segment)
+
 
 
 ## ---------------------------------

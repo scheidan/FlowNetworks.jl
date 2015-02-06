@@ -59,6 +59,12 @@ v = Graphs.vertices(g)
 @test length(flowpath(g, lo3a, lo4)) == 0
 
 
+## --- get upstream segments
+
+@test length(upstream_segments(g, Graphs.edges(g)[1])) == 5
+@test length(upstream_segments(g, lo3a)) == 3
+
+
 ## --- misc
 
 @test length(netspaceN(g, 10)) == 50
